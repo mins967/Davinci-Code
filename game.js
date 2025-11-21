@@ -34,6 +34,7 @@ class DavinciCodeGame {
         this.lastUserCardIndex = null;
         this.hasGuessedThisTurn = false;
         this.lastAddedCard = null; // 최근 AI가 이번 턴에 뽑은 카드 정보를 보관
+        this.playertriedcard = null; // 가장 최근 플레이어가 시도한 선택
     }
 
     initGame() {
@@ -65,6 +66,7 @@ class DavinciCodeGame {
         this.lastUserCardIndex = null;
         this.hasGuessedThisTurn = false;
         this.isThereJoker = false;
+        this.playertriedcard = null;
     }
 
     getRandomCards(deck, count) {
@@ -324,9 +326,15 @@ class DavinciCodeGame {
             for (const whiteCards of possibleWhite) {
                 const purpose = [...blackCards, ...whiteCards].sort();
                 
+                // Exclude cases that contain the player's last guessed card
+                const playerGuess = this.playertriedcard; // may be null
+
                 if (purpose[0] && purpose[0][0] === '-') {
                     const cases = this.generateAllCombinations(purpose);
-                    allDeck.push(...cases);
+                    for (const c of cases) {
+                        if (playerGuess && c.includes(playerGuess)) continue;
+                        allDeck.push(c);
+                    }
                 } else {
                     let flag = true;
                     for (let index = 0; index < purpose.length; index++) {
@@ -346,8 +354,13 @@ class DavinciCodeGame {
                             }
                         }
                         if (isRevealed) {
-                            allDeck.push(purpose);
-                            this.cntNoJoker++;
+                            // skip if this possible deck contains the player's last guess
+                            if (this.playertriedcard && purpose.includes(this.playertriedcard)) {
+                                // excluded
+                            } else {
+                                allDeck.push(purpose);
+                                this.cntNoJoker++;
+                            }
                         }
                     }
                 }
@@ -741,7 +754,11 @@ function selectNumber(number) {
     
     const cardColor = game.myDeck[game.selectedCardIndex][game.myDeck[game.selectedCardIndex].length - 1];
     let guessCard = number + cardColor;
-    
+    // 기록: 플레이어가 이번에 추측한 카드를 게임 상태에 저장
+    try {
+        if (game) game.playertriedcard = guessCard;
+    } catch (e) {}
+
     hideNumberSelector();
     makeGuess(game.selectedCardIndex, guessCard);
 }
@@ -767,6 +784,7 @@ function hideNumberSelector() {
 // 추측하기
 function makeGuess(position, card) {
     const isCorrect = game.validateUserGuess(position, card);
+    // game.playertriedcard = card;
     
     if (isCorrect) {
         showToast(`✅ 정답! ${formatCardDisplay(card)}가 맞습니다!`, 'success');
