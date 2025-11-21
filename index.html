@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 다빈치 코드 게임</title>
+    <style>
+        @import url('style.css');
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="game-title">🎮 다빈치 코드</div>
+            <div class="game-info">
+                <div class="info-item">
+                    <span class="info-label">턴:</span>
+                    <span class="info-value" id="turnCount">0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">맞춘 카드:</span>
+                    <span class="info-value" id="correctCount">0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">가능한 덱:</span>
+                    <span class="info-value" id="possibleDecks">-</span>
+                </div>
+            </div>
+            <div class="controls">
+                <button onclick="initGame()">🎲 새 게임</button>
+                <button onclick="testGenerateDeck()" id="testDeckBtn" disabled>🔍 분석</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="game-container">
+        <div class="opponent-area">
+            <div class="opponent-label">
+                <span>🤖</span>
+                <span>AI의 카드</span>
+            </div>
+            <div class="opponent-deck" id="opponentDeck"></div>
+        </div>
+
+        <div class="center-area">
+            <div class="turn-indicator" id="turnIndicator">게임을 시작하세요</div>
+            
+            <!-- 숫자 선택은 모달로 표시됩니다. 모달 내용은 하단에 위치합니다. -->
+        </div>
+
+        <div class="player-area">
+            <div class="action-area">
+                <button class="action-btn btn-pass" onclick="passTurn()" id="passBtn" disabled>
+                    ⏭️ 턴 넘기기
+                </button>
+            </div>
+            <div class="player-label">
+                <span>👤</span>
+                <span>내 카드</span>
+            </div>
+            <div class="player-deck" id="playerDeck"></div>
+        </div>
+    </div>
+
+    <div class="joker-placement-modal" id="jokerModal">
+        <div class="joker-modal-content">
+            <h3>🃏 조커를 배치할 위치를 선택하세요</h3>
+            <div class="position-grid" id="positionGrid"></div>
+        </div>
+    </div>
+
+    <div class="number-selection-modal" id="numberModal">
+        <div class="number-modal-content">
+            <div class="number-selector" id="numberSelector">
+                <h3>예측할 숫자를 선택하세요</h3>
+                <div class="number-grid" id="numberGrid"></div>
+                <div class="joker-button-container">
+                    <button class="joker-btn" id="jokerBtn">🃏 조커</button>
+                </div>
+                <button class="cancel-btn" onclick="cancelSelection()">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-over-modal" id="gameOverModal">
+        <div class="modal-content">
+            <div class="winner-icon" id="winnerIcon"></div>
+            <h2 id="winnerText"></h2>
+            <p id="winnerMessage"></p>
+            <button onclick="closeModal()" style="padding: 15px 50px; font-size: 1.2em;">확인</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <div class="toast-log" id="toastLog" aria-live="polite"></div>
+
+    <script src="game.js"></script>
+</body>
+</html>
