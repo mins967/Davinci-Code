@@ -1,3 +1,12 @@
+// AI 턴이 종료되므로 보관하던 뽑은 카드를 초기화
+// AI 턴이 종료되므로 보관하던 뽑은 카드를 초기화
+// AI 턴이 종료되므로 보관하던 뽑은 카드를 초기화
+// addedCard가 없을 가능성이 있으므로 안전하게 처리
+// addedCard가 없을 가능성이 있으므로 안전하게 처리
+// addedCard가 없을 가능성이 있으므로 안전하게 처리
+// addedCard가 없을 가능성이 있으므로 안전하게 처리
+// addedCard가 없을 가능성이 있으므로 안전하게 처리
+// addedCard가 없을 가능성이 있으므로 안전하게 처리
 class DavinciCodeGame {
     constructor() {
         this.whiteDeck = ['0w', '1w', '2w', '3w', '4w', '5w', '6w', '7w', '8w', '9w', 'a0w', 'a1w'];
@@ -24,6 +33,7 @@ class DavinciCodeGame {
         this.lastBotCardIndex = null;
         this.lastUserCardIndex = null;
         this.hasGuessedThisTurn = false;
+        this.lastAddedCard = null; // 최근 AI가 이번 턴에 뽑은 카드 정보를 보관
     }
 
     initGame() {
@@ -530,7 +540,16 @@ class DavinciCodeGame {
     }
 
     isPlayerGameOver() {
-        return this.userRevealedDeck.filter(c => c !== '_').length === this.userDeck.length;
+        // 더 견고한 판정:
+        // - userRevealedDeck 길이가 userDeck 길이와 동일해야 함
+        // - 모든 인덱스에서 값이 존재하고 '_'가 아니어야 게임 종료로 판단
+        if (!Array.isArray(this.userRevealedDeck)) return false;
+        if (this.userRevealedDeck.length !== this.userDeck.length) return false;
+        for (let i = 0; i < this.userDeck.length; i++) {
+            const val = this.userRevealedDeck[i];
+            if (typeof val === 'undefined' || val === '_' || val === null) return false;
+        }
+        return true;
     }
 
     getDisplayBotDeck() {
@@ -923,11 +942,16 @@ function passTurn() {
 }
 
 // AI 턴 실행
-function executeBotTurn() {
-    let addedCard = null; // 변수를 함수 시작 시점에 선언
-    
+function executeBotTurn() {    
+    // Use persistent storage on `game` for the card the AI drew at the
+    // beginning of its turn. executeBotTurn may be called multiple times
+    // while the AI continues guessing in the same turn; in that case we
+    // should reuse the same drawn card rather than losing it.
+    let addedCard = game.lastAddedCard || null;
     if (game.turnFirst) {
-        addedCard = game.myAddCard();
+        // start of a new AI turn: draw a card and persist it
+        game.lastAddedCard = game.myAddCard();
+        addedCard = game.lastAddedCard;
         showToast(`AI가 카드를 뽑았습니다`, 'info');
         game.deleteOverlap();
         displayOpponentDeck();
@@ -1030,6 +1054,13 @@ function executeBotTurn() {
                 game.turnFirst = false;
                 displayPlayerDeck();
 
+                // 플레이어의 모든 카드가 공개되었는지 즉시 확인
+                if (game.isPlayerGameOver()) {
+                    setTimeout(() => showGameOver(false), 800);
+                    return;
+                }
+
+                // 기존의 allDeck 기반 종료 체크(추가 안전망)
                 if (allDeck.length === 1) {
                     setTimeout(() => showGameOver(false), 1500);
                     return;
@@ -1037,14 +1068,14 @@ function executeBotTurn() {
 
                 setTimeout(() => executeBotTurn(), 2000);
             } else {
-                showToast('AI가 오답!', 'error');
+                showToast(`AI가 오답! 공개될 카드: ${addedCard.card}`, 'error');
 
                 // Python 코드와 동일하게: AI가 이번 턴에 뽑은 카드를 공개
                 if (addedCard && addedCard.card) {
                     if (!game.correctedCard.includes(addedCard.card)) {
                         game.correctedCard.push(addedCard.card);
                     }
-                    showToast(`AI의 ${addedCard.index + 1}번째 카드 ${formatCardDisplay(addedCard.card)}가 공개되었습니다`, 'info');
+                    showToast(`AI의 ${addedCard.index + 1}번째 카드 ${formatCardDisplay(addedCard.card)}가 공개되었습니다.`, 'info');
                     displayOpponentDeck();
                     game.deleteOverlap();
                 }
