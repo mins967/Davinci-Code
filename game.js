@@ -786,6 +786,7 @@ function makeGuess(position, card) {
     const isCorrect = game.validateUserGuess(position, card);
     // game.playertriedcard = card;
     
+    game.turn ++;
     if (isCorrect) {
         showToast(`✅ 정답! ${formatCardDisplay(card)}가 맞습니다!`, 'success');
         game.turnFirst = false;
@@ -1066,7 +1067,8 @@ function executeBotTurn() {
 
         setTimeout(() => {
             const isCorrect = game.validateBotGuess(position, card);
-
+            
+            game.turn ++;
             if (isCorrect) {
                 showToast('AI가 정답을 맞췄습니다!', 'success');
                 game.turnFirst = false;
@@ -1138,7 +1140,7 @@ function updateStats() {
 function syncTurnCount() {
     if (!game) return;
     // turn 기준을 플레이어가 뽑은 카드 개수로 설정
-    game.turn = game.userDeck.length - 4;
+    // game.turn = game.userDeck.length - 4;
     updateStats();
 }
 
