@@ -1,12 +1,3 @@
-// AI 턴이 종료되므로 보관하던 뽑은 카드를 초기화
-// AI 턴이 종료되므로 보관하던 뽑은 카드를 초기화
-// AI 턴이 종료되므로 보관하던 뽑은 카드를 초기화
-// addedCard가 없을 가능성이 있으므로 안전하게 처리
-// addedCard가 없을 가능성이 있으므로 안전하게 처리
-// addedCard가 없을 가능성이 있으므로 안전하게 처리
-// addedCard가 없을 가능성이 있으므로 안전하게 처리
-// addedCard가 없을 가능성이 있으므로 안전하게 처리
-// addedCard가 없을 가능성이 있으므로 안전하게 처리
 class DavinciCodeGame {
     constructor() {
         this.whiteDeck = ['0w', '1w', '2w', '3w', '4w', '5w', '6w', '7w', '8w', '9w', 'a0w', 'a1w'];
