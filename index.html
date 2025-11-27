@@ -182,10 +182,10 @@
         </div>
     </div>
 
-    <script src="game.js"></script>
+    <!-- Firebase 먼저 초기화 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs } 
+        import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs, deleteDoc } 
             from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -207,14 +207,17 @@
             query,
             orderBy,
             limit,
-            getDocs
+            getDocs,
+            deleteDoc
         };
 
-        console.log('Firebase 초기화 완료');
+        console.log('✅ Firebase 초기화 완료');
 
         // Firebase 초기화 후 game.js 로드
         const script = document.createElement('script');
         script.src = 'game.js';
+        script.onload = () => console.log('✅ game.js 로드 완료');
+        script.onerror = () => console.error('❌ game.js 로드 실패');
         document.body.appendChild(script);
     </script>
 </body>

@@ -1528,11 +1528,58 @@ async function updateRankingDisplay() {
     }
 }
 
-// 랭킹 초기화
-function clearRankings() {
-    if (confirm('정말로 모든 랭킹 기록을 삭제하시겠습니까?')) {
-        localStorage.removeItem('davinciRankings');
-        updateRankingDisplay();
-        showToast('랭킹이 초기화되었습니다', 'info');
+// 랭킹 초기화 (Firebase - 관리자 비밀번호 필요)
+async function clearRankings() {
+    const password = prompt('관리자 비밀번호를 입력하세요:');
+    
+    // 관리자 비밀번호 확인
+    const ADMIN_PASSWORD = 'davinci2025';
+    
+    if (password !== ADMIN_PASSWORD) {
+        showToast('❌ 비밀번호가 올바르지 않습니다', 'error');
+        return;
+    }
+    
+    if (!confirm('정말로 모든 랭킹 기록을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) {
+        return;
+    }
+    
+    try {
+        if (!window.firebaseApp || !window.db || !window.firebaseModules) {
+            showToast('❌ Firebase 연결 오류', 'error');
+            console.error('Firebase가 초기화되지 않았습니다');
+            return;
+        }
+
+        const { collection, getDocs, deleteDoc, doc } = window.firebaseModules;
+        
+        showToast('🔄 랭킹 삭제 중...', 'info');
+        
+        // 모든 랭킹 문서 가져오기
+        const querySnapshot = await getDocs(collection(window.db, "rankings"));
+        
+        if (querySnapshot.empty) {
+            showToast('삭제할 랭킹이 없습니다', 'info');
+            return;
+        }
+        
+        // 각 문서 삭제
+        const deletePromises = [];
+        querySnapshot.forEach((document) => {
+            deletePromises.push(deleteDoc(document.ref));
+        });
+        
+        await Promise.all(deletePromises);
+        
+        console.log(`${deletePromises.length}개의 랭킹 기록 삭제 완료`);
+        showToast(`✅ ${deletePromises.length}개의 랭킹 기록이 삭제되었습니다`, 'success');
+        
+        // 랭킹 화면 새로고침
+        if (document.getElementById('rankingScreen').classList.contains('active')) {
+            await updateRankingDisplay();
+        }
+    } catch (e) {
+        console.error('랭킹 초기화 실패:', e);
+        showToast(`❌ 랭킹 초기화 중 오류: ${e.message}`, 'error');
     }
 }
