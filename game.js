@@ -1259,14 +1259,14 @@ function showLoginModal() {
         const nickname = nicknameInput.value.trim();
 
         if (!studentNumber || !name || !nickname) {
-            showToast('학번, 이름, 닉네임을 모두 입력하세요', 'error');
+            showLoginError('학번, 이름, 닉네임을 모두 입력하세요', 'error');
             return;
         }
 
         // 학생번호는 숫자로만 입력되도록 간단히 검증
         const studentNumDigits = studentNumber.replace(/\D/g, '');
         if (studentNumDigits.length !== studentNumber.length) {
-            showToast('학번은 숫자만 입력하세요', 'error');
+            showLoginError('학번은 숫자만 입력하세요', 'error');
             return;
         }
 
@@ -1274,7 +1274,7 @@ function showLoginModal() {
         const studentsInfo = {"10403" : "김민승", "10420" : "최주원", "10421" : "한지우"};
         
         if (studentsInfo[studentNumber] !== name) {
-            showToast('학생 정보가 일치하지 않습니다.', 'error');
+            showLoginError('학생 정보가 일치하지 않습니다.', 'error');
             return;
         }
 
@@ -1304,6 +1304,43 @@ function showLoginModal() {
     studentNumberInput.onkeydown = onKeyDown;
     nameInput.onkeydown = onKeyDown;
     nicknameInput.onkeydown = onKeyDown;
+}
+
+function showLoginError(message) {
+    const modal = document.getElementById('loginModal');
+    const loginBox = modal.querySelector('.login-box');
+    
+    // 기존 오류 메시지 제거
+    let errorDiv = modal.querySelector('.login-error');
+    if (errorDiv) {
+        errorDiv.remove();
+    }
+    
+    // 새 오류 메시지 생성
+    errorDiv = document.createElement('div');
+    errorDiv.className = 'login-error';
+    errorDiv.textContent = message;
+    
+    // 제목(h2) 다음에 삽입
+    const title = loginBox.querySelector('h2');
+    if (title && title.nextSibling) {
+        loginBox.insertBefore(errorDiv, title.nextSibling);
+    } else {
+        loginBox.insertBefore(errorDiv, loginBox.firstChild);
+    }
+    
+    // 3초 후 페이드아웃 후 제거
+    setTimeout(() => {
+        if (errorDiv && errorDiv.parentNode) {
+            errorDiv.classList.add('fade-out');
+            // 애니메이션이 끝난 후 DOM에서 제거
+            setTimeout(() => {
+                if (errorDiv && errorDiv.parentNode) {
+                    errorDiv.remove();
+                }
+            }, 300); // CSS 애니메이션 시간과 동일
+        }
+    }, 3000);
 }
 
 function hideLoginModal() {

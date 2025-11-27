@@ -14,7 +14,7 @@ body {
     height: 100vh;
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* 페이지 스크롤을 사용하지 않고 내부 요소를 비율로 맞춤 */
+    overflow: hidden;
 }
 
 body::before {
@@ -89,6 +89,7 @@ header {
     gap: 8px;
     margin-left: 14px;
 }
+
 .player-welcome .nick {
     color: #ffd700;
 }
@@ -126,7 +127,6 @@ button:disabled {
     max-width: 1400px;
     margin: 0 auto;
     width: 100%;
-    /* 헤더 높이를 고려해 남은 화면 전체를 사용 */
     height: calc(100vh - var(--header-height));
 }
 
@@ -155,7 +155,6 @@ button:disabled {
 }
 
 .card {
-    /* 크기를 뷰포트에 맞춰 유동적으로 조정 (작은 화면에서는 축소) */
     width: clamp(60px, 9.5vw, 100px);
     height: clamp(86px, 13vh, 140px);
     border-radius: 10px;
@@ -497,7 +496,7 @@ button:disabled {
     font-size: 1.2em;
     font-weight: bold;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
-    z-index: 999;
+    z-index: 10000;
     opacity: 0;
     transition: opacity 0.3s;
     pointer-events: none;
@@ -536,7 +535,6 @@ button:disabled {
     display: flex;
 }
 
-/* 숫자 선택 모달 스타일 */
 .number-selection-modal {
     display: none;
     position: fixed;
@@ -639,7 +637,6 @@ button:disabled {
     }
 }
 
-/* Toast log (persistent messages) */
 .toast-log {
     position: fixed;
     right: 20px;
@@ -675,24 +672,30 @@ button:disabled {
     flex: 0 0 auto;
 }
 
-.toast-log .log-item.info { background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); }
-.toast-log .log-item.success { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); }
-.toast-log .log-item.error { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); }
-
-/* make sure on very small screens log doesn't block the UI */
-@media (max-width: 420px) {
-    .toast-log { width: calc(100% - 24px); left: 12px; right: 12px; }
+.toast-log .log-item.info { 
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); 
 }
 
-/* --------------------------------------------------
-   Generic modal / overlay styles and animations
-   All modals should reuse these where possible.
-   -------------------------------------------------- */
+.toast-log .log-item.success { 
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); 
+}
+
+.toast-log .log-item.error { 
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); 
+}
+
+@media (max-width: 420px) {
+    .toast-log { 
+        width: calc(100% - 24px); 
+        left: 12px; 
+        right: 12px; 
+    }
+}
 
 .modal {
     display: none;
     position: fixed;
-    inset: 0; /* top:0; right:0; bottom:0; left:0 */
+    inset: 0;
     justify-content: center;
     align-items: center;
     z-index: 1000;
@@ -705,8 +708,8 @@ button:disabled {
 .modal-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0,0,0,0.72);
-    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
     animation: overlayFade 200ms ease;
 }
 
@@ -728,69 +731,179 @@ button:disabled {
 }
 
 @keyframes modalPop {
-    0% { opacity: 0; transform: translateY(12px) scale(0.97); }
-    60% { opacity: 1; transform: translateY(-6px) scale(1.02); }
-    100% { opacity: 1; transform: translateY(0) scale(1); }
+    0% { 
+        opacity: 0; 
+        transform: translateY(12px) scale(0.97); 
+    }
+    60% { 
+        opacity: 1; 
+        transform: translateY(-6px) scale(1.02); 
+    }
+    100% { 
+        opacity: 1; 
+        transform: translateY(0) scale(1); 
+    }
 }
 
-/* Specific tweaks for the built-in number-selection modal */
 .number-selection-modal .number-modal-content {
     animation: modalPop 260ms cubic-bezier(0.2, 0.9, 0.2, 1);
 }
 
-/* Login modal / box */
-.login-box {
-    background: linear-gradient(135deg, #ffffff 0%, #f7f7f7 100%);
-    padding: 32px;
-    border-radius: 12px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-    text-align: center;
-    width: min(90%, 420px);
-    color: #222;
-}
-.login-box h2 {
-    margin-bottom: 6px;
-    color: #222;
-}
-.login-box p {
-    color: rgba(0,0,0,0.65);
-    margin-bottom: 18px;
-}
-.login-box .input-row {
-    margin-bottom: 12px;
-}
-.login-box input[type="text"],
-.login-box input[type="password"] {
-    width: 100%;
-    padding: 12px 14px;
-    border-radius: 8px;
-    border: 1px solid rgba(0,0,0,0.12);
-    font-size: 16px;
-}
-.login-box input:focus {
-    outline: none;
-    box-shadow: 0 6px 20px rgba(102,126,234,0.12);
-    border-color: #667eea;
-}
-.login-actions {
-    margin-top: 10px;
-}
-.login-actions button {
-    padding: 12px 20px;
-    font-size: 16px;
-    border-radius: 10px;
-    background: linear-gradient(135deg,#667eea 0%, #764ba2 100%);
-    color: #fff;
-    font-weight: 700;
-    border: none;
+/* 로그인 모달 스타일 */
+#loginModal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
 }
 
-/* Ensure modal is full-screen and blocks interaction while shown */
-.modal.active #loginModal, .modal.active {
+#loginModal.active {
     display: flex;
 }
 
-/* Use class-based color choice box styling instead of inline styles */
+#loginModal .modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    animation: overlayFade 200ms ease;
+}
+
+#loginModal .modal-box {
+    position: relative;
+    z-index: 1001;
+    width: min(90%, 420px);
+    max-width: 420px;
+    background: transparent;
+    box-shadow: none;
+    animation: modalPop 260ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.login-box {
+    background: linear-gradient(135deg, #ffffff 0%, #f7f7f7 100%);
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    width: 100%;
+    color: #222;
+}
+
+.login-box h2 {
+    margin: 0 0 10px 0;
+    color: #222;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.login-box p {
+    margin: 0 0 24px 0;
+    color: #666;
+    font-size: 14px;
+}
+
+/* 로그인 오류 메시지 */
+.login-error {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #dc2626;
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border: 2px solid #fca5a5;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+    animation: errorFadeIn 0.3s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.login-error.fade-out {
+    animation: errorFadeOut 0.3s cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
+}
+
+@keyframes errorFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-12px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes errorFadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-12px) scale(0.95);
+    }
+}
+
+.login-box .input-row {
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.login-box .input-row label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #555;
+}
+
+.login-box input[type="text"],
+.login-box input[type="password"] {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 2px solid #e5e7eb;
+    font-size: 15px;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.login-box input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.login-actions {
+    margin-top: 24px;
+}
+
+.login-actions button {
+    width: 100%;
+    padding: 14px 24px;
+    font-size: 16px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.login-actions button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.login-actions button:active {
+    transform: translateY(0);
+}
+
 .color-choice-box {
     background: #0b0b0b;
     padding: 18px;
@@ -808,7 +921,6 @@ button:disabled {
 }
 
 .color-choices .card.back {
-    /* Larger preview for color-selection modal */
     width: 140px;
     height: 190px;
     font-size: clamp(1.4rem, 4vw, 2.2rem);
@@ -824,7 +936,6 @@ button:disabled {
     box-shadow: 0 18px 44px rgba(0,0,0,0.45);
 }
 
-/* Make the center '?' on preview cards larger and more visible */
 .color-choices .card.back::before {
     content: '?';
     position: absolute;
@@ -836,8 +947,7 @@ button:disabled {
     pointer-events: none;
 }
 
-/* Prevent background interaction when modal is open */
-.modal-open {
+body.modal-open {
     overflow: hidden;
     touch-action: none;
 }
