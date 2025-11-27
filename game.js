@@ -1406,12 +1406,18 @@ function showRankingScreen() {
     updateRankingDisplay();
 }
 
-// 랭킹 저장
-function saveRanking(nickname, turns, studentNumber) {
+// 랭킹 저장 (Firebase)
+async function saveRanking(nickname, turns, studentNumber) {
     try {
-        let rankings = JSON.parse(localStorage.getItem('davinciRankings') || '[]');
+        if (!window.firebaseApp || !window.db) {
+            console.error('Firebase가 초기화되지 않았습니다');
+            showToast('랭킹 저장 실패: 서버 연결 오류', 'error');
+            return false;
+        }
+
+        const { addDoc, collection } = window.firebaseModules;
         
-        rankings.push({
+        await addDoc(collection(window.db, "rankings"), {
             nickname: nickname,
             turns: turns,
             studentNumber: studentNumber,
@@ -1419,34 +1425,53 @@ function saveRanking(nickname, turns, studentNumber) {
             timestamp: Date.now()
         });
         
-        // 턴 수 기준 오름차순 정렬
-        rankings.sort((a, b) => a.turns - b.turns);
-        
-        // 상위 100개만 유지
-        rankings = rankings.slice(0, 100);
-        
-        localStorage.setItem('davinciRankings', JSON.stringify(rankings));
+        console.log('랭킹 저장 성공');
         return true;
     } catch (e) {
         console.error('랭킹 저장 실패:', e);
+        showToast('랭킹 저장 중 오류가 발생했습니다', 'error');
         return false;
     }
 }
 
-// 랭킹 불러오기
-function getRankings() {
+// 랭킹 불러오기 (Firebase)
+async function getRankings() {
     try {
-        const rankings = JSON.parse(localStorage.getItem('davinciRankings') || '[]');
+        if (!window.firebaseApp || !window.db) {
+            console.error('Firebase가 초기화되지 않았습니다');
+            return [];
+        }
+
+        const { collection, query, orderBy, limit, getDocs } = window.firebaseModules;
+        
+        const q = query(
+            collection(window.db, "rankings"),
+            orderBy("turns", "asc"),
+            limit(100)
+        );
+        
+        const querySnapshot = await getDocs(q);
+        const rankings = [];
+        
+        querySnapshot.forEach((doc) => {
+            rankings.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+        
+        console.log(`랭킹 ${rankings.length}개 불러오기 성공`);
         return rankings;
     } catch (e) {
         console.error('랭킹 불러오기 실패:', e);
+        showToast('랭킹을 불러오는 중 오류가 발생했습니다', 'error');
         return [];
     }
 }
 
 // 랭킹 화면 업데이트
-function updateRankingDisplay() {
-    const rankings = getRankings();
+async function updateRankingDisplay() {
+    const rankings = await getRankings();
     const tbody = document.getElementById('rankingTableBody');
     
     // 통계 업데이트

@@ -32,7 +32,7 @@
                     <button onclick="initGame()">🎲 새 게임</button>
                     <button onclick="showRankingScreen()">🏆 랭킹</button>
                     <button onclick="testGenerateDeck()" id="testDeckBtn" disabled>🔍 분석</button>
-                    <button onclick="logout()" id="logoutBtn" style="display:none;">🚪 로그아웃</button>
+                    <button onclick="logout()" id="logoutBtn" style="display:none;">로그아웃</button>
                 </div>
                 <div class="player-welcome" id="playerWelcome" aria-live="polite"></div>
             </div>
@@ -183,5 +183,39 @@
     </div>
 
     <script src="game.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs } 
+            from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCtvxpEpR15gr2CRoH_Gjk6AAA3EiXzNGU",
+            authDomain: "davincicode-770b9.firebaseapp.com",
+            projectId: "davincicode-770b9",
+        };
+
+        // Firebase 초기화
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // 전역으로 접근 가능하도록 설정
+        window.firebaseApp = app;
+        window.db = db;
+        window.firebaseModules = {
+            collection,
+            addDoc,
+            query,
+            orderBy,
+            limit,
+            getDocs
+        };
+
+        console.log('Firebase 초기화 완료');
+
+        // Firebase 초기화 후 game.js 로드
+        const script = document.createElement('script');
+        script.src = 'game.js';
+        document.body.appendChild(script);
+    </script>
 </body>
 </html>
