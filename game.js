@@ -1196,7 +1196,13 @@ function showGameOver(playerWon) {
     if (playerWon) {
         icon.textContent = '🎉';
         text.textContent = '승리!';
-        message.textContent = '축하합니다! 모든 카드를 맞추셨습니다!';
+        message.textContent = `축하합니다! ${game.turn}턴 만에 모든 카드를 맞추셨습니다!`;
+        
+        // 랭킹 저장
+        const nickname = localStorage.getItem('nickname') || '익명';
+        const studentNumber = localStorage.getItem('studentNumber') || '';
+        saveRanking(nickname, game.turn, studentNumber);
+        showToast('🏆 랭킹에 등록되었습니다!', 'success');
     } else {
         icon.textContent = '😢';
         text.textContent = '패배';
@@ -1271,7 +1277,7 @@ function showLoginModal() {
         }
 
         // studentsInfo 참조 수정
-        const studentsInfo = {"10403" : "김민승", "10420" : "최주원", "10421" : "한지우"};
+        const studentsInfo = {"10403" : "김민승", "10420" : "최주원", "10421" : "한지우", "10809" : "성동현"};
         
         if (studentsInfo[studentNumber] !== name) {
             showLoginError('학생 정보가 일치하지 않습니다.', 'error');
@@ -1386,4 +1392,122 @@ function escapeHtml(str) {
               .replace(/>/g, '&gt;')
               .replace(/"/g, '&quot;')
               .replace(/'/g, '&#039;');
+}
+
+// 화면 전환 함수
+function showGameScreen() {
+    document.getElementById('gameScreen').classList.add('active');
+    document.getElementById('rankingScreen').classList.remove('active');
+}
+
+function showRankingScreen() {
+    document.getElementById('gameScreen').classList.remove('active');
+    document.getElementById('rankingScreen').classList.add('active');
+    updateRankingDisplay();
+}
+
+// 랭킹 저장
+function saveRanking(nickname, turns, studentNumber) {
+    try {
+        let rankings = JSON.parse(localStorage.getItem('davinciRankings') || '[]');
+        
+        rankings.push({
+            nickname: nickname,
+            turns: turns,
+            studentNumber: studentNumber,
+            date: new Date().toISOString(),
+            timestamp: Date.now()
+        });
+        
+        // 턴 수 기준 오름차순 정렬
+        rankings.sort((a, b) => a.turns - b.turns);
+        
+        // 상위 100개만 유지
+        rankings = rankings.slice(0, 100);
+        
+        localStorage.setItem('davinciRankings', JSON.stringify(rankings));
+        return true;
+    } catch (e) {
+        console.error('랭킹 저장 실패:', e);
+        return false;
+    }
+}
+
+// 랭킹 불러오기
+function getRankings() {
+    try {
+        const rankings = JSON.parse(localStorage.getItem('davinciRankings') || '[]');
+        return rankings;
+    } catch (e) {
+        console.error('랭킹 불러오기 실패:', e);
+        return [];
+    }
+}
+
+// 랭킹 화면 업데이트
+function updateRankingDisplay() {
+    const rankings = getRankings();
+    const tbody = document.getElementById('rankingTableBody');
+    
+    // 통계 업데이트
+    if (rankings.length > 0) {
+        document.getElementById('topPlayer').textContent = rankings[0].nickname;
+        document.getElementById('topTurns').textContent = `${rankings[0].turns} 턴`;
+        document.getElementById('totalGames').textContent = rankings.length;
+        
+        const avgTurns = rankings.reduce((sum, r) => sum + r.turns, 0) / rankings.length;
+        document.getElementById('avgTurns').textContent = avgTurns.toFixed(1);
+    } else {
+        document.getElementById('topPlayer').textContent = '-';
+        document.getElementById('topTurns').textContent = '- 턴';
+        document.getElementById('totalGames').textContent = '0';
+        document.getElementById('avgTurns').textContent = '-';
+    }
+    
+    // 테이블 업데이트
+    tbody.innerHTML = '';
+    
+    if (rankings.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align:center; padding:40px; color:#999;">
+                    아직 랭킹 기록이 없습니다<br>
+                    <small>게임을 플레이하고 첫 기록을 남겨보세요!</small>
+                </td>
+            </tr>
+        `;
+    } else {
+        rankings.forEach((rank, index) => {
+            const row = document.createElement('tr');
+            const date = new Date(rank.date);
+            const dateStr = `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+            
+            // 1~3등 강조
+            if (index < 3) {
+                row.classList.add(`rank-${index + 1}`);
+            }
+            
+            let rankDisplay = index + 1;
+            if (index === 0) rankDisplay = '🥇';
+            else if (index === 1) rankDisplay = '🥈';
+            else if (index === 2) rankDisplay = '🥉';
+            
+            row.innerHTML = `
+                <td><strong>${rankDisplay}</strong></td>
+                <td>${escapeHtml(rank.nickname)}</td>
+                <td><strong>${rank.turns}</strong> 턴</td>
+                <td>${dateStr}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+}
+
+// 랭킹 초기화
+function clearRankings() {
+    if (confirm('정말로 모든 랭킹 기록을 삭제하시겠습니까?')) {
+        localStorage.removeItem('davinciRankings');
+        updateRankingDisplay();
+        showToast('랭킹이 초기화되었습니다', 'info');
+    }
 }
