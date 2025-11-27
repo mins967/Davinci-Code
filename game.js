@@ -26,6 +26,8 @@ class DavinciCodeGame {
         this.hasGuessedThisTurn = false;
         this.lastAddedCard = null; // 최근 AI가 이번 턴에 뽑은 카드 정보를 보관
         this.playertriedcard = null; // 가장 최근 플레이어가 시도한 선택
+
+        this.studentsInfo = {"10403" : "김민승", "10420" : "최주원", "10421" : "한지우"};
     }
 
     initGame() {
@@ -584,6 +586,11 @@ let waitingForNumber = false;
 
 // 게임 초기화
 function initGame() {
+    if (!isLoggedIn()) {
+        showToast('로그인 후 게임을 시작하세요', 'error');
+        showLoginModal();
+        return;
+    }
     game = new DavinciCodeGame();
     game.initGame();
     
@@ -1214,5 +1221,132 @@ function testGenerateDeck() {
 
 // 페이지 로드 시 메시지
 window.onload = () => {
-    showToast('🎮 새 게임을 시작하세요!', 'info');
+    // 로그인 여부 검사 후 로그인 모달을 표시하거나 게임 시작 메시지를 보여줍니다.
+    if (isLoggedIn()) {
+        showToast('🎮 환영합니다! 새 게임을 시작하세요!', 'info');
+        // 로그인상태면 initGame 버튼을 사용 가능하게 하고, 자동 시작은 선택적으로 처리
+    } else {
+        showLoginModal();
+    }
+    updateAuthUI();
 };
+
+// ---------------------- 로그인 관련 기능 ----------------------
+function isLoggedIn() {
+    try {
+        return localStorage.getItem('loggedIn') === 'true';
+    } catch (e) {
+        return false;
+    }
+}
+
+function showLoginModal() {
+    const modal = document.getElementById('loginModal');
+    if (!modal) return;
+    modal.classList.add('active');
+    document.body.classList.add('modal-open');
+    
+    const loginBtn = document.getElementById('loginButton');
+    const studentNumberInput = document.getElementById('studentNumberInput');
+    const nameInput = document.getElementById('nameInput');
+    const nicknameInput = document.getElementById('nicknameInput');
+    
+    try { studentNumberInput.focus(); } catch (e) {}
+
+    function handleLogin() {
+        const studentNumber = studentNumberInput.value.trim();
+        const name = nameInput.value.trim();
+        const nickname = nicknameInput.value.trim();
+
+        if (!studentNumber || !name || !nickname) {
+            showToast('학번, 이름, 닉네임을 모두 입력하세요', 'error');
+            return;
+        }
+
+        // 학생번호는 숫자로만 입력되도록 간단히 검증
+        const studentNumDigits = studentNumber.replace(/\D/g, '');
+        if (studentNumDigits.length !== studentNumber.length) {
+            showToast('학번은 숫자만 입력하세요', 'error');
+            return;
+        }
+
+        // studentsInfo 참조 수정
+        const studentsInfo = {"10403" : "김민승", "10420" : "최주원", "10421" : "한지우"};
+        
+        if (studentsInfo[studentNumber] !== name) {
+            showToast('학생 정보가 일치하지 않습니다.', 'error');
+            return;
+        }
+
+        // 로컬에 사용자 정보 저장
+        try {
+            localStorage.setItem('loggedIn', 'true');
+            localStorage.setItem('studentNumber', studentNumber);
+            localStorage.setItem('name', name);
+            localStorage.setItem('nickname', nickname);
+        } catch (e) {}
+        
+        hideLoginModal();
+        showToast(`${nickname}님, 환영합니다!`, 'success');
+        updateAuthUI();
+        // 자동으로 새 게임 시작
+        initGame();
+    }
+
+    // Enter 키로 로그인 처리
+    function onKeyDown(e) {
+        if (e.key === 'Enter') {
+            handleLogin();
+        }
+    }
+
+    loginBtn.onclick = handleLogin;
+    studentNumberInput.onkeydown = onKeyDown;
+    nameInput.onkeydown = onKeyDown;
+    nicknameInput.onkeydown = onKeyDown;
+}
+
+function hideLoginModal() {
+    const modal = document.getElementById('loginModal');
+    if (!modal) return;
+    modal.classList.remove('active');
+    document.body.classList.remove('modal-open');
+    updateAuthUI();
+}
+
+// 로그아웃 유틸 (디버깅/개발용)
+function logout() {
+    try { localStorage.removeItem('loggedIn'); } catch (e) {}
+    try { localStorage.removeItem('studentNumber'); } catch (e) {}
+    try { localStorage.removeItem('name'); } catch (e) {}
+    try { localStorage.removeItem('nickname'); } catch (e) {}
+    showLoginModal();
+    updateAuthUI();
+}
+
+function updateAuthUI() {
+    const loggedIn = isLoggedIn();
+    const testBtn = document.getElementById('testDeckBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (testBtn) testBtn.disabled = !loggedIn;
+    if (logoutBtn) logoutBtn.style.display = loggedIn ? 'inline-block' : 'none';
+    const welcome = document.getElementById('playerWelcome');
+    if (welcome) {
+        if (loggedIn) {
+            const nick = localStorage.getItem('nickname') || '';
+            welcome.innerHTML = `안녕하세요, <span class="nick">${escapeHtml(nick)}</span>님`;
+        } else {
+            welcome.textContent = '';
+        }
+    }
+}
+
+// Utility to prevent XSS when inserting nickname into HTML
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;')
+              .replace(/'/g, '&#039;');
+}

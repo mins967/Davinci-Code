@@ -81,6 +81,18 @@ header {
     gap: 10px;
 }
 
+.player-welcome {
+    color: white;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 14px;
+}
+.player-welcome .nick {
+    color: #ffd700;
+}
+
 button {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -724,6 +736,58 @@ button:disabled {
 /* Specific tweaks for the built-in number-selection modal */
 .number-selection-modal .number-modal-content {
     animation: modalPop 260ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+/* Login modal / box */
+.login-box {
+    background: linear-gradient(135deg, #ffffff 0%, #f7f7f7 100%);
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    text-align: center;
+    width: min(90%, 420px);
+    color: #222;
+}
+.login-box h2 {
+    margin-bottom: 6px;
+    color: #222;
+}
+.login-box p {
+    color: rgba(0,0,0,0.65);
+    margin-bottom: 18px;
+}
+.login-box .input-row {
+    margin-bottom: 12px;
+}
+.login-box input[type="text"],
+.login-box input[type="password"] {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.12);
+    font-size: 16px;
+}
+.login-box input:focus {
+    outline: none;
+    box-shadow: 0 6px 20px rgba(102,126,234,0.12);
+    border-color: #667eea;
+}
+.login-actions {
+    margin-top: 10px;
+}
+.login-actions button {
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 10px;
+    background: linear-gradient(135deg,#667eea 0%, #764ba2 100%);
+    color: #fff;
+    font-weight: 700;
+    border: none;
+}
+
+/* Ensure modal is full-screen and blocks interaction while shown */
+.modal.active #loginModal, .modal.active {
+    display: flex;
 }
 
 /* Use class-based color choice box styling instead of inline styles */

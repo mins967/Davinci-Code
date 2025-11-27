@@ -29,7 +29,9 @@
             <div class="controls">
                 <button onclick="initGame()">🎲 새 게임</button>
                 <button onclick="testGenerateDeck()" id="testDeckBtn" disabled>🔍 분석</button>
+                <button onclick="logout()" id="logoutBtn" style="display:none;">🚪 로그아웃</button>
             </div>
+            <div class="player-welcome" id="playerWelcome" aria-live="polite"></div>
         </div>
     </header>
 
@@ -93,6 +95,29 @@
 
     <div class="toast" id="toast"></div>
     <div class="toast-log" id="toastLog" aria-live="polite"></div>
+
+    <!-- Login Modal: 표시 시 페이지의 모든 인터랙션을 막고 로그인 후에만 게임 UI 접근 가능 -->
+    <div id="loginModal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-box">
+            <div class="login-box">
+                <h2>로그인</h2>
+                <p>계정으로 로그인하면 게임을 시작할 수 있습니다.</p>
+                <div class="input-row">
+                    <input id="studentNumberInput" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="학번 (예: 10101)" aria-label="학번 입력" />
+                </div>
+                <div class="input-row">
+                    <input id="nameInput" type="text" placeholder="이름" autocomplete="name" aria-label="이름 입력" />
+                </div>
+                <div class="input-row">
+                    <input id="nicknameInput" type="text" placeholder="랭킹에 표시될 닉네임" aria-label="닉네임 입력" />
+                </div>
+                <div class="login-actions">
+                    <button id="loginButton">로그인</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="game.js"></script>
 </body>
