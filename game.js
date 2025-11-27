@@ -1540,7 +1540,7 @@ async function clearRankings() {
     const password = prompt('관리자 비밀번호를 입력하세요:');
     
     // 관리자 비밀번호 확인
-    const ADMIN_PASSWORD = 'davinci2025';
+    const ADMIN_PASSWORD = '1702403';
     
     if (password !== ADMIN_PASSWORD) {
         showToast('❌ 비밀번호가 올바르지 않습니다', 'error');
