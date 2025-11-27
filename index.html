@@ -158,7 +158,12 @@
     </div>
 
     <div class="toast" id="toast"></div>
-    <div class="toast-log" id="toastLog" aria-live="polite"></div>
+    <div class="toast-log-container">
+        <button class="toast-log-toggle" id="toastLogToggle" onclick="toggleToastLog()" title="로그 숨기기/보이기">
+            📋
+        </button>
+        <div class="toast-log" id="toastLog" aria-live="polite"></div>
+    </div>
 
     <div id="loginModal" class="modal">
         <div class="modal-overlay"></div>

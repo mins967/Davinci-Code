@@ -1235,6 +1235,13 @@ window.onload = () => {
         showLoginModal();
     }
     updateAuthUI();
+    
+    // 로그 상태 복원
+    const logHidden = localStorage.getItem('toastLogHidden') === 'true';
+    if (logHidden) {
+        const log = document.getElementById('toastLog');
+        if (log) log.classList.add('hidden');
+    }
 };
 
 // ---------------------- 로그인 관련 기능 ----------------------
@@ -1581,5 +1588,26 @@ async function clearRankings() {
     } catch (e) {
         console.error('랭킹 초기화 실패:', e);
         showToast(`❌ 랭킹 초기화 중 오류: ${e.message}`, 'error');
+    }
+}
+
+// Toast 로그 토글
+function toggleToastLog() {
+    const log = document.getElementById('toastLog');
+    if (!log) return;
+    
+    const isHidden = log.classList.toggle('hidden');
+    
+    // 상태 저장
+    try {
+        localStorage.setItem('toastLogHidden', isHidden);
+    } catch (e) {
+        console.error('로그 상태 저장 실패:', e);
+    }
+    
+    // 버튼 툴팁 업데이트
+    const btn = document.getElementById('toastLogToggle');
+    if (btn) {
+        btn.title = isHidden ? '로그 보이기' : '로그 숨기기';
     }
 }
